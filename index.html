@@ -1,14 +1,23 @@
 <html>
     <head>
         <script type="text/javascript" src="https://unpkg.com/vexflow/releases/vexflow-debug.js"></script>
-        <script type="text/javascript" src="m.js"></script>
         <script type="text/javascript" src="IqaaData.js"></script>
+        <script type="text/javascript" src="notation.js"></script>
         <script type="text/javascript" src="main.js" defer></script>
+        <script type="text/javascript" src="interactions.js" defer></script>
     </head>
 
     <body>
         <div id="NotationDiv"></div>
+        <input type="button" id="playButton" value='PLAY'>
+        <br>
+        <br>
         <input type="number" min="30" max="400" value="80" id="bpmInput">
         <p style="display: inline;">BPM</p>
+        <input type="button" id="bpmButton" value='change bpm'>
+        <br>
+        <br>
+        <input type="text" id="iqaaTextInput">
+        <input type="button" id="iqaaTextButton" value='change iqaa'>
     </body>
 </html>

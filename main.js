@@ -1,43 +1,30 @@
 'use strict';
 
+// Deal with variants
+// IqaaData.maqsum[0]
+
 let N = new Notation('NotationDiv', 600)
             .setTextVisibility(false)
-            // .setIqaa(IqaaData["maqsum"][0])
-            // .setIqaa("4/4:DTTT")
-            // .setIqaa("8/4:DsTTsTTs|DsDsTsss")
-            .setIqaa("4/4:DssTssTs|DsssTsss")
-            .setIqaa("2/8:DD")
-            // 4/4:(Dss)(Tss)(Ts)|(Ds)(ss)(Ts)(ss)
-            // 4/4:[(Dss)(Tss)(Ts)]|DsTs
+            .setIqaa(IqaaData['samai thaqil'][0])
+            // .setIqaa(IqaaData['wahda wi nuss'][0])
+            // .setIqaa("4/4:D(Ts)T|(Ds)(Ts)")
+            // .setIqaa("4/4:(DD)sT|(Ds)(Ts)")
             .drawDividers(false);
 
 
 
 var bpm = 80; // (30 <= bpm <= 400) <=> (150 <= ms/beat < 2000)
               // Note: 60000 = (bpm) * (ms/beat)
-// document.getElementById('bpmInput').addEventListener('change', (e) => {
-//     if (e.target.value > 400)
-//         e.target.value = 400;
-//     else if (e.target.value < 30)
-//         e.target.value = 30;
-//     bpm = e.target.value;
-// });
-document.getElementById('bpmInput').onchange = (e) => {
-    if (e.target.value > 400)
-        e.target.value = 400;
-    else if (e.target.value < 30)
-        e.target.value = 30;
-    bpm = e.target.value;
-};
 let refreshRate = 15; // in ms, 10ms is the minimum acceptable setInterval parameter in most browsers
 
 function playSound(value) {
-    value = value.toLowerCase(); // t in ['d', 't', 's']
+    value = value.toLowerCase(); // t in ['d', 't', 'k', 's']
     
     if (typeof(playSound.sounds) == 'undefined') {
         playSound.sounds = {
             'd' : new Audio('sounds/darbuka_dum.wav'),
             't' : new Audio('sounds/darbuka_tek.wav'),
+            'k' : new Audio('sounds/darbuka_ka.wav'),
         };
         // playSound.sounds = {
         //     'd' : new Audio('sounds/riq_dum.wav'),
@@ -71,6 +58,8 @@ function changeNoteColor(index, color) {
         c.firstElementChild.setAttribute("fill", color);
         c.firstElementChild.setAttribute("stroke", color);
     }
+
+    // ! change color of the beam stem
 }
 
 function theLoop() {
@@ -89,22 +78,24 @@ function theLoop() {
     let oldCursorT = N.cursorT;
     N.cursorT = (N.cursorT + dCursor)%1;
 
-    let index = Math.round(N.cursorT * N.iqaaObj.count) % N.iqaaObj.count;
+    let indexValueSum = Math.round(N.cursorT * N.iqaaObj.noteValuesSum) % N.iqaaObj.noteValuesSum;
+    let [index, isFirstTickOfNote] = N.iqaaObj.indexFromValueSum[indexValueSum];
     let dx = 0.75 * refreshRate*barPerMs; // half refresh rate measured between [0, 1]
-    let x = index/N.iqaaObj.count;
+    let x = indexValueSum/N.iqaaObj.noteValuesSum;
         
-    if (!betweenModulo(oldCursorT, -dx + x, dx + x) && 
+    if (isFirstTickOfNote && // otherwise it'll play at every subdivision of the note
+        !betweenModulo(oldCursorT, -dx + x, dx + x) && 
          betweenModulo(N.cursorT,  -dx + x, dx + x)) {
 
         new Promise(async () => {
-            if (N.iqaaObj.rhythm[index] == 's')
+            if (N.iqaaObj.notes[index][0] == 's')
                 return;
             changeNoteColor(index, 'red');
-            await new Promise(r => setTimeout(r, (2 * barPerMs * N.iqaaObj.count)**-1));
+            await new Promise(r => setTimeout(r, N.iqaaObj.notes[index][1] * (2 * barPerMs * N.iqaaObj.noteValuesSum)**-1));
             changeNoteColor(index, 'black');
         });
 
-        playSound(N.iqaaObj.rhythm[index]);
+        playSound(N.iqaaObj.notes[index][0]);
         // LogT.push(T_1); // to log timestamps
         // [Analysis]
         // LogT.map((v, i) => LogT[i+1]-v)
@@ -112,9 +103,20 @@ function theLoop() {
     }
 }
 
+function PlayStop(play) {
+    if (play) {
+        delete theLoop.lastExecuted;
+        //! note the first note won't be played as oldCursorT == N.cursorT as dT == 0
+        N.cursorT = 0;
+        PlayStop.intervalID = setInterval(theLoop, refreshRate);
+    } else {
+        N.cursorT = -1;
+        if (PlayStop.intervalID != undefined)
+            clearInterval(PlayStop.intervalID);
+    }
+}
 
-N.cursorT = 0;
-setInterval(theLoop, refreshRate); 
+// --------------------------------------------------------------------
 
 function ArrayDifferenceAverage(arr) {
     return arr.map((v, i) => arr[i+1]-v).filter((x)=>x).reduce((a,b)=>a+b,0)/(arr.length-1);
@@ -136,15 +138,4 @@ function calculateBPM() {
         return undefined
     else
         return 60000/ArrayDifferenceAverage(calculateBPM.T);
-}
-
-document.onkeypress = function(e) {
-    if (e.key == ' ') {
-        let t = calculateBPM();
-        if (t != undefined) {
-            document.getElementById('bpmInput').value = Math.round(t);
-            document.getElementById('bpmInput').dispatchEvent(new Event('change'));
-        }
-        console.log(t);
-    }
 }

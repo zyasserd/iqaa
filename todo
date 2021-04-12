@@ -7,6 +7,17 @@
                             [AB] means beamed notes
 
                         Consider Zaffa "4/4:D([TK])[TT]|DTTs"?
+1.4: add dot support
+    think of it as preprocessing macro
+    Rule X. => [(Xss)]
+    while X in 'dtks'
+
+1.5: TEST ALOT
+    tackle the //!
+    write the throw Error messages properly in IqaaData.js
+
+
+understand javascript modules
 
 2. add iqaa's of maqamworld and inside arabic music here
 
