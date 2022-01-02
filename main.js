@@ -5,9 +5,10 @@
 
 let N = new Notation('NotationDiv', 600)
             .setTextVisibility(false)
-            .setIqaa(IqaaData['samai thaqil'][0])
+            // .setIqaa(IqaaData['samai thaqil'][0])
             // .setIqaa(IqaaData['wahda wi nuss'][0])
-            // .setIqaa("4/4:D(Ts)T|(Ds)(Ts)")
+            .setIqaa(IqaaData['ciftetelli'][0])
+            // .setIqaa("4/4:[D]T[T]|DT")
             // .setIqaa("4/4:(DD)sT|(Ds)(Ts)")
             .drawDividers(false);
 

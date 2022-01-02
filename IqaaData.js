@@ -1,3 +1,13 @@
+// Depreciated and Replaced by (IqaaStringParsing.js)
+// Why? Using Regex and Grammars for parsing was
+// too strict and prevented parsing of perfectly
+// valid string.
+// EX: ([Dss]),  ([D] [ss]),  ([D] s)
+//     first two would parse but the third won't
+
+
+'use strict';
+
 // ** FORMAT SPECIFICATIONS **
 // [#] case insensitive
 // [#] spaces can be everywhere for readability
@@ -21,32 +31,6 @@
 //      [#]: notes inside have to be of same direction (D), or (T, K)
 //      [#]: (s) is not allowed
 //      [#]: note values <= a quarter
-
-const maximizer_regex = /^(d|t|k|s)s*$/;
-
-let _noDivider_regex_string = String.raw`
-    (?:
-        (?: d|t|k|s) |              # a comment
-        \( (?: d|t|k|s) s* \) |
-        \(
-            (?: 
-                (?:
-                    \(ds*\) | 
-                    d
-                ){2,} |
-                (?:
-                    \(ts*\) | t |
-                    \(ks*\) | k
-                ){2,}
-            )
-        \)
-    )+
-
-`.replaceAll(/\#.*$/gm, '') // remove comments
-.replaceAll(/\s/g,''); // remove whitespace
-
-// USAGE NOTES: noDivider_regex.test(s.replaceAll('|', ''))
-const noDivider_regex = new RegExp('^'+_noDivider_regex_string+'$');
 
 
 function splitButParen(s) {
@@ -84,9 +68,43 @@ function parseDumTakPart(input){
     // EXAMPLE:
     // input:           'D[(TK)](TT)|DTTs'
     // noDividerFormat: '(Ds)(TK)((Ts)(Ts))|(Ds)(Ts)(Ts)(ss)'
+
+
+    // [Variable Declaration]
+    const maximizer_regex = /^(d|t|k|s)s*$/;
+
+    let _noDivider_regex_string = String.raw`
+        (?:
+            (?: d|t|k|s) |              # a comment
+            \( (?: d|t|k|s) s* \) |
+            \(
+                (?: 
+                    (?:
+                        \(ds*\) | 
+                        d
+                    ){2,} |
+                    (?:
+                        \(ts*\) | t |
+                        \(ks*\) | k
+                    ){2,}
+                )
+            \)
+        )+
+
+    `.replaceAll(/\#.*$/gm, '') // remove comments
+    .replaceAll(/\s/g,''); // remove whitespace
+
+    // USAGE NOTES: noDivider_regex.test(s.replaceAll('|', ''))
+    const noDivider_regex = new RegExp('^'+_noDivider_regex_string+'$');
+
     
+
     // [STEP 0]: Change format
     input = input.toLowerCase().replaceAll(' ', '');
+
+
+    // [STEP 0.5]: Preprocessing (Dotted Notes)
+    input = input.replaceAll(/([dtks])\./g, "[($1ss)]");
 
 
     // [STEP 1]: check that all characters are allowed
@@ -123,7 +141,7 @@ function parseDumTakPart(input){
 
 
     // [STEP 3]: Produce noDivider Format
-    // ! define noDivider Format
+    // noDivider Format: an equivalent iqaa without any []
     roundBracketsLevel = 0;
     let noDividerFormat = '';
 
@@ -146,13 +164,14 @@ function parseDumTakPart(input){
     }
 
     // [STEP 3.5]: Fixing side effects of STEP 3
-    // note [T](Ds) => T((Ds)(ss))
+    // Example: (Ds) => ((Ds)(ss))    => (Dsss)
+    //               ^ previous step  ^ this step
     noDividerFormat = noDividerFormat.replaceAll(
         /\(\((?:t|d|k|s)s*\)(?:\(s*\))+\)/g,
         m => '(' + m.replaceAll('(', '').replaceAll(')', '') + ')'
     )
 
-    //! could return noDividerFormat
+    //? could return noDividerFormat
     // console.log(noDividerFormat);
 
 
@@ -249,6 +268,7 @@ function parseIqaaString(str) {
     *   }
     */
 
+
     let _parts = str.split(':');
     let _keyStr = _parts[0].split('/');
 
@@ -281,6 +301,7 @@ const IqaaData = {
     "aqsaq": ["9/8:Ds|Ts|Ds|TsT", "9/8:Ds|Ts|DD|TsT"],
     "dawr hindi": ["7/8:DTT|DsTs"],
     "wahda wi nuss": ["4/4:[(Dss)][(Tss)]t|DsTs"],
-    // "ciftetelli": [],
+    "ciftetelli": ["8/4: D [T]T [T]T | DDTs"],
     "zaffa": ["4/4:D[(TK)](TT)|DTTs"]
+
 };
