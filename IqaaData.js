@@ -6,6 +6,8 @@
 //     first two would parse but the third won't
 
 
+// TODO: use grammar instead for parsing.
+
 'use strict';
 
 // ** FORMAT SPECIFICATIONS **
