@@ -1,11 +1,24 @@
 # Todo: big picture
-- switch to a parser generator approach
+- data format
+    - Parsing
+        - switch to a parser generator approach
 
-- generate a music file and play it instead
-    - could be downloadable
-    - will fix some of the bugs
+- playing
+    - generate a music file and play it instead
+        - could be downloadable
+        - will fix some of the bugs
 
-- frontend
+- displaying
+    - edit iqaat
+        - press on notes to change [D, T, s]
+    - frontend
+    - piano roll notation
+        - or make the current notation spacing time-perserving
+    - https://musiclab.chromeexperiments.com/rhythm/
+        - open source
+        - use a cute diagram like this
+            - tabla
+            - riqq
 
 - data
     - iqaa similarity metric
@@ -16,13 +29,14 @@
         - maqamworld
         - inside arabic music
 
-- sound identification
-    - use microphone and ML to identify rhythms
-        - SIMPLER: have D, T buttons and use to play and quick search for rhythms
+- LATER
+    - sound identification
+        - use microphone and ML to identify rhythms
+            - SIMPLER: have D, T buttons and use to play and quick search for rhythms
 
-- generate Ornamentation
+    - generate Ornamentation
 
-- game like thingy to learn iqaas
+    - game like thingy to learn iqaas
 
 
 
@@ -34,7 +48,6 @@
 - FEATURE system play and pause controls
 - FEATURE rich text editor for errors and meter [4/4]
 - FEATURE metronome feature + sounds
-- FEATURE press on notes to change [D, T, s]
 - FEATURE beat BPM
     - maybe add `halfnote = ??` and so on, depending on the meter
 - FEATURE Width Resizing of the sheet svg
